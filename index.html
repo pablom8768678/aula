@@ -1,1 +1,239 @@
-teste
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="shortcut icon" href=
+    "https://static.kabum.com.br/conteudo/favicon/favicon.ico">
+    <link rel="preconnect" href="https://themes.kabum.com.br">
+    <link rel="dns-prefetch" href="https://themes.kabum.com.br">
+    <link rel="preconnect" href="https://static.kabum.com.br">
+    <link rel="dns-prefetch" href="https://static.kabum.com.br">
+  
+    <title>Site Fora do Ar</title>
+    <style>
+        /* Configura o fundo com a imagem e alinha o topo */
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        /* Estilo do popup */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 30px;
+            background-color: rgb(30, 30, 30); /* Cor de fundo roxa semitransparente */
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            z-index: 9999;
+            width: 80%;
+            max-width: 600px;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .popup h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .popup p {
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+
+        .popup button {
+            background-color: #FFD400;
+            border: none;
+            margin-top: 20px;
+            padding: 10px 30px;
+            color: #2a1a6d;
+            font-size: 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .popup button:hover {
+            background-color: #FFB500;
+        }
+
+        /* Efeito de fade-in para o popup */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Blur no fundo quando o popup é exibido */
+        .blur-background {
+            filter: blur(8px);
+            pointer-events: none; /* Impede interação com o fundo */
+        }
+
+        /* Container para o fundo, que agora cobre toda a tela */
+        #background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('image/background.jpg') no-repeat top center;
+            background-size: cover;
+            transition: filter 0.3s ease-in-out;
+            z-index: -1; /* Coloca o fundo atrás de tudo */
+        }
+
+        /* Estilo para o novo formulário */
+        #formPopup {
+            display: none;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group input {
+            width: 500px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+        }
+
+        /* Estilo para o "captcha" */
+        .captcha-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .captcha-box {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #FFD400;
+            margin-right: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .captcha-box.checked::after {
+            content: '✓';
+            color: #FFD400;
+        }
+
+        .captcha-box.loading {
+            border: 2px solid transparent;
+            border-top: 2px solid #FFD400;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Estilo para a mensagem de confirmação */
+        #confirmationMessage {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Fundo do site com blur -->
+    <div id="background"></div>
+
+    <!-- Popup de Fora do Ar -->
+    <div class="popup" id="popup">
+        <h2>Site Fora do Ar!</h2>
+        <p>O site está temporariamente fora do ar . Por favor, entre em contato com o suporte para mais informações.</p>
+        <button onclick="showFormPopup()">Ir para o Suporte</button>
+    </div>
+
+    <!-- Novo Popup com Formulário -->
+    <div class="popup" id="formPopup">
+        <h2>Entre em Contato com o Suporte</h2>
+        <form id="supportForm">
+            <div class="form-group">
+                <input type="email" id="email" placeholder="Seu Email" required>
+            </div>
+            <div class="form-group">
+                <input type="password" id="password" placeholder="Senha" required>
+            </div>
+            <div class="form-group">
+                <input type="password" id="confirmPassword" placeholder="Confirmar Senha" required>
+            </div>
+            <div class="captcha-container">
+                <div class="captcha-box" id="captchaBox" onclick="checkCaptcha()"></div>
+                <span>Não sou um robô</span>
+            </div>
+            <button type="submit" onclick="submitForm(event)">Enviar</button>
+        </form>
+    </div>
+
+    <!-- Mensagem de Confirmação -->
+    <div class="popup" id="confirmationMessage">
+        <h2>Obrigado pelo Contato!</h2>
+        <p>Nossa equipe de suporte analisará seu problema e entrará em contato em breve.</p>
+    </div>
+
+    <script>
+        // Função para exibir o popup inicial
+        window.onload = function() {
+            setTimeout(function() {
+                document.getElementById('popup').style.display = 'block';
+                document.getElementById('background').classList.add('blur-background');
+            }, 500);
+        };
+
+        // Função para mostrar o formulário
+        function showFormPopup() {
+            document.getElementById('popup').style.display = 'none';
+            document.getElementById('formPopup').style.display = 'block';
+        }
+
+        // Função para simular a verificação do captcha
+        function checkCaptcha() {
+            const captchaBox = document.getElementById('captchaBox');
+            captchaBox.classList.add('loading');
+            setTimeout(() => {
+                captchaBox.classList.remove('loading');
+                captchaBox.classList.add('checked');
+            }, 1500);
+        }
+
+        // Função para enviar o formulário
+        function submitForm(event) {
+            event.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (password !== confirmPassword) {
+                alert("As senhas não coincidem!");
+                return;
+            }
+
+            document.getElementById('formPopup').style.display = 'none';
+            document.getElementById('confirmationMessage').style.display = 'block';
+        }
+    </script>
+
+</body>
+</html>
